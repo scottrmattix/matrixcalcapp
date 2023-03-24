@@ -1,0 +1,94 @@
+use yew::prelude::*;
+mod matrices;
+use crate::matrices::Matrix;
+use gloo::console::log;
+use wasm_bindgen::JsCast;
+use web_sys::HtmlInputElement;
+
+
+#[derive(Properties, PartialEq)]
+struct FormMatrixProps{
+    onsubmit: Callback<String>,
+}
+
+#[derive(Properties, PartialEq)]
+struct SubmitButtonProps{
+    label: String,
+}
+#[derive(Properties, PartialEq)]
+struct TextInputProps{
+    name: String,
+    handle_onchange: Callback<String>,
+}
+
+#[function_component(SubmitButton)]
+fn submit_button(props: &SubmitButtonProps) ->Html{
+    html!{
+        <button>{&props.label}</button>
+    }
+}
+#[function_component(TextInput)]
+fn text_input(props: &TextInputProps) -> Html {
+    let handle_onchange = props.handle_onchange.clone();
+    let onchange = Callback::from(move |event: Event| {
+        let target = event.target().unwrap();
+        let input = target.unchecked_into::<HtmlInputElement>();
+        handle_onchange.emit(input.value());
+    });
+    html!{
+        <input type="text" name={props.name.clone()} onchange={onchange} />
+    }
+}
+
+#[function_component(FormMatrix)]
+fn matrix_form(props: &FormMatrixProps) -> Html {
+    let matrix_state = use_state(|| "no matrix set".to_owned());
+    let cloned_matrix_state = matrix_state.clone();
+    let matrix_changed = Callback::from(move |matrix| {
+        cloned_matrix_state.set(matrix);
+    });
+
+    let form_onsubmit = props.onsubmit.clone();
+    let cloned_matrix_state = matrix_state.clone();
+    let onsubmit = Callback::from(move |event : SubmitEvent| {
+        event.prevent_default();
+        let data = cloned_matrix_state.clone();
+        form_onsubmit.emit(data.to_string());
+    });
+    html! {
+        <form onsubmit={onsubmit}>
+            <TextInput name = "matrix"  handle_onchange={ matrix_changed}/>
+            <SubmitButton label = "submit" />
+            <p>{"Username: "}{&*matrix_state}</p>
+        </form>
+    }
+}
+
+
+#[function_component]
+fn App() -> Html {
+    let matrix_state = use_state(|| "no matrix set".to_owned());
+    let cloned_matrix_state = matrix_state.clone();
+    let form_onsubmit = Callback::from(move |data| {
+        cloned_matrix_state.set(data);
+    });
+    html! {
+        <div>
+            <FormMatrix onsubmit={ form_onsubmit }/>
+            <p>{"Matrix: "}{&*matrix_state}</p>
+        </div>
+    }
+}
+
+fn main() {
+    let mut m = Matrix::new(4, 4);
+    let init = vec![1.0, 0.0, 0.0, 0.0,
+                    0.0, 1.0, 0.0, 0.0,
+                    0.0, 0.0, 1.0, 0.0,
+                    0.0, 0.0, 0.0, 1.0
+                                    ];
+    m.load_from_vector(init);
+    println!("{:?}", m);
+    yew::Renderer::<App>::new().render();
+}
+
