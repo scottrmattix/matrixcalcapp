@@ -2,7 +2,7 @@
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
-    data: Vec<f64>,
+    pub data: Vec<f64>,
 }
 
 impl Matrix {
@@ -13,6 +13,25 @@ impl Matrix {
             cols,
             data: vec![0.0; rows * cols],
         }
+    }
+
+    // Create a new matrix based on a string, with the first two characters being the rows and
+    // columns respectively
+    pub fn create_from_string(s : &String) -> Self {
+        let mut split = s.split_whitespace();
+        let row_s: usize = split.next().unwrap().parse().unwrap();
+        let col_s: usize = split.next().unwrap().parse().unwrap();
+        let mut mat = Matrix::new(row_s, col_s);
+        let mut curvec = vec![0.0; row_s * col_s];
+        let mut curpos = 0;
+        for val_s in split{
+            let f = val_s.parse().unwrap();
+            curvec[curpos] = f; 
+            curpos += 1;
+        }
+        mat.load_from_vector(curvec);
+        mat
+        
     }
 
     // Get the element at the specified row and column
@@ -91,7 +110,6 @@ impl Matrix {
         let mut currow = 0;
         let mut curcol = 0;
         for val in vector.iter() {
-            println!("col:{}, row{}", curcol, currow);
             self.set(currow, curcol, *val);
             curcol += 1;
             if curcol % self.cols == 0{
@@ -99,5 +117,39 @@ impl Matrix {
                 currow += 1;
             }
         }
+    }
+    // Convert the matrix to echelon form using Gaussian elimination
+    pub fn echelon_form(&mut self) {
+        let mut lead = 0;
+        for r in 0..self.rows {
+            if lead >= self.cols {
+                return;
+            }
+            let mut i = r;
+            while self.get(i, lead) == 0.0 {
+                i += 1;
+                if i == self.rows {
+                    i = r;
+                    lead += 1;
+                    if lead == self.cols {
+                        return;
+                    }
+                }
+            }
+            if i != r {
+                self.swap_rows(i, r);
+            }
+            self.scale_row(r, 1.0 / self.get(r, lead));
+            for i in 0..self.rows {
+                if i != r {
+                    self.add_multiple_of_row(r, i, -self.get(i, lead));
+                }
+            }
+            lead += 1;
+        }
+    }
+    // returns a string
+    pub fn to_string(&self) -> String {
+        format!("{:?}", self.data)
     }
 }

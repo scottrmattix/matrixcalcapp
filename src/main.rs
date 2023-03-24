@@ -42,7 +42,7 @@ fn text_input(props: &TextInputProps) -> Html {
 
 #[function_component(FormMatrix)]
 fn matrix_form(props: &FormMatrixProps) -> Html {
-    let matrix_state = use_state(|| "no matrix set".to_owned());
+    let matrix_state = use_state(|| "2 2 0 0 0 0".to_owned());
     let cloned_matrix_state = matrix_state.clone();
     let matrix_changed = Callback::from(move |matrix| {
         cloned_matrix_state.set(matrix);
@@ -59,7 +59,6 @@ fn matrix_form(props: &FormMatrixProps) -> Html {
         <form onsubmit={onsubmit}>
             <TextInput name = "matrix"  handle_onchange={ matrix_changed}/>
             <SubmitButton label = "submit" />
-            <p>{"Username: "}{&*matrix_state}</p>
         </form>
     }
 }
@@ -67,15 +66,18 @@ fn matrix_form(props: &FormMatrixProps) -> Html {
 
 #[function_component]
 fn App() -> Html {
-    let matrix_state = use_state(|| "no matrix set".to_owned());
+    let matrix_state = use_state(|| "2 2 0 0 0 0".to_owned());
     let cloned_matrix_state = matrix_state.clone();
     let form_onsubmit = Callback::from(move |data| {
         cloned_matrix_state.set(data);
     });
+    let mut m =Matrix::create_from_string(&*matrix_state);
+    m.echelon_form();
+    let res = m.to_string();
     html! {
         <div>
             <FormMatrix onsubmit={ form_onsubmit }/>
-            <p>{"Matrix: "}{&*matrix_state}</p>
+            <p>{"Matrix: "}{res}</p>
         </div>
     }
 }
@@ -88,7 +90,10 @@ fn main() {
                     0.0, 0.0, 0.0, 1.0
                                     ];
     m.load_from_vector(init);
-    println!("{:?}", m);
+    let s = "2 2 1 0 0 1".to_owned();
+    let mut x = Matrix::create_from_string(&s);
+    m.echelon_form();
+    println!("{}", m.to_string());
     yew::Renderer::<App>::new().render();
 }
 
