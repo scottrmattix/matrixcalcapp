@@ -14,21 +14,25 @@ struct MatrixProps{
 fn matrix_component(props: &MatrixProps) -> Html{
     let rows = props.matrix.get_rows();
     html!{
-        <table>
-        {
-            rows.into_iter().map(|row|{
-                html!{
-                    <tr>
-                    {
-                        row.into_iter().map(|val| {
-                            html!{<th> {val } </th>}
-                        }).collect::<Html>()
+        <div class="matrix-table">
+            <p>{"("}</p>
+            <table>
+            {
+                rows.into_iter().map(|row|{
+                    html!{
+                        <tr>
+                        {
+                            row.into_iter().map(|val| {
+                                html!{<th> {val } </th>}
+                            }).collect::<Html>()
+                        }
+                        </tr>
                     }
-                    </tr>
-                }
-            }).collect::<Html>()
-        }
-        </table>
+                }).collect::<Html>()
+            }
+            </table>
+            <p>{")"}</p>
+        </div>
     }
 }
 

@@ -129,6 +129,17 @@ impl Matrix {
             }
         }
     }
+    // gets the transpose of a matrix
+    pub fn transpose(&mut self) {
+        for i in 0..self.rows {
+            for j in i+1..self.cols {
+                let index1 = i * self.cols + j;
+                let index2 = j * self.cols + i;
+                self.data.swap(index1, index2);
+            }
+        }
+        std::mem::swap(&mut self.rows, &mut self.cols);
+    }
     // Convert the matrix to echelon form using Gaussian elimination
     pub fn echelon_form(&mut self) {
         let mut lead = 0;
@@ -158,6 +169,76 @@ impl Matrix {
             }
             lead += 1;
         }
+    }
+    // matrix inverse
+    pub fn inverse(&self) -> Option<Matrix> {
+        if self.rows != self.cols {
+            return None; // Non-square matrices are not invertible
+        }
+
+        let n = self.rows;
+        let mut a = self.clone();
+        let mut b = Matrix::identity(n);
+
+        for i in 0..n {
+            let mut j = i;
+            while j < n && a[(j, i)] == 0.0 {
+                j += 1;
+            }
+            if j == n {
+                return None; // Matrix is singular
+            }
+            if j != i {
+                a.swap_rows(i, j);
+                b.swap_rows(i, j);
+            }
+            let pivot = a[(i, i)];
+            a.scale_row(i, 1.0 / pivot);
+            b.scale_row(i, 1.0 / pivot);
+            for k in 0..n {
+                if k != i {
+                    let factor = a[(k, i)];
+                    a.add_scaled_row(k, i, -factor);
+                    b.add_scaled_row(k, i, -factor);
+                }
+            }
+        }
+
+        Some(b)
+    }
+
+    // calculates the determinant
+    pub fn determinant(&self) -> Option<f64> {
+        if self.rows != self.cols {
+            return None; // Determinant is only defined for square matrices
+        }
+
+        let n = self.rows;
+        let mut a = self.clone();
+        let mut det = 1.0;
+
+        for i in 0..n {
+            let mut j = i;
+            while j < n && a[(j, i)] == 0.0 {
+                j += 1;
+            }
+            if j == n {
+                return Some(0.0); // Matrix is singular
+            }
+            if j != i {
+                a.swap_rows(i, j);
+                det = -det;
+            }
+            let pivot = a[(i, i)];
+            det *= pivot;
+            a.scale_row(i, 1.0 / pivot);
+            for k in i+1..n {
+                let factor = a[(k, i)];
+                a.add_scaled_row(k, i, -factor);
+            }
+        }
+
+        Some(det)
     }
     // returns a string
     pub fn to_string(&self) -> String {
