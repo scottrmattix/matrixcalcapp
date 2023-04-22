@@ -7,6 +7,32 @@ use web_sys::HtmlInputElement;
 
 
 #[derive(Properties, PartialEq)]
+struct MatrixProps{
+   matrix: Matrix,
+}
+#[function_component(MatrixComp)]
+fn matrix_component(props: &MatrixProps) -> Html{
+    let rows = props.matrix.get_rows();
+    html!{
+        <table>
+        {
+            rows.into_iter().map(|row|{
+                html!{
+                    <tr>
+                    {
+                        row.into_iter().map(|val| {
+                            html!{<th> {val } </th>}
+                        }).collect::<Html>()
+                    }
+                    </tr>
+                }
+            }).collect::<Html>()
+        }
+        </table>
+    }
+}
+
+#[derive(Properties, PartialEq)]
 struct FormMatrixProps{
     onsubmit: Callback<String>,
 }
@@ -74,17 +100,16 @@ fn App() -> Html {
     });
     let mut m =Matrix::create_from_string(&*matrix_state);
     m.echelon_form();
-    let res = m.to_string();
     html! {
         <div>
             <FormMatrix onsubmit={ form_onsubmit }/>
-            <p>{"Matrix: "}{res}</p>
+            <MatrixComp matrix={m}/>
         </div>
     }
 }
 
 fn main() {
-    let mut m = Matrix::new(4, 4);
+    /*let mut m = Matrix::new(4, 4);
     let init = vec![1.0, 0.0, 0.0, 0.0,
                     0.0, 1.0, 0.0, 0.0,
                     0.0, 0.0, 1.0, 0.0,
@@ -95,6 +120,7 @@ fn main() {
     let mut x = Matrix::create_from_string(&s);
     m.echelon_form();
     println!("{}", m.to_string());
+    */
     yew::Renderer::<App>::new().render();
 }
 

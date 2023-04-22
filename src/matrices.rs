@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
@@ -32,6 +32,17 @@ impl Matrix {
         mat.load_from_vector(curvec);
         mat
         
+    }
+
+    //retuns a vector of the rows
+    pub fn get_rows(&self) -> Vec<Vec<f64>> {
+        let mut rows = Vec::with_capacity(self.rows);
+        for i in 0..self.rows {
+            let row_start = i * self.cols;
+            let row_end = row_start + self.cols;
+            rows.push(self.data[row_start..row_end].to_vec());
+        }
+        rows
     }
 
     // Get the element at the specified row and column
