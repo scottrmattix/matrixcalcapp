@@ -14,6 +14,7 @@ struct FormMatrixProps{
 #[derive(Properties, PartialEq)]
 struct SubmitButtonProps{
     label: String,
+    name: String,
 }
 #[derive(Properties, PartialEq)]
 struct TextInputProps{
@@ -24,7 +25,7 @@ struct TextInputProps{
 #[function_component(SubmitButton)]
 fn submit_button(props: &SubmitButtonProps) ->Html{
     html!{
-        <button>{&props.label}</button>
+        <button name={props.name.clone()}>{&props.label}</button>
     }
 }
 #[function_component(TextInput)]
@@ -58,7 +59,7 @@ fn matrix_form(props: &FormMatrixProps) -> Html {
     html! {
         <form onsubmit={onsubmit}>
             <TextInput name = "matrix"  handle_onchange={ matrix_changed}/>
-            <SubmitButton label = "submit" />
+            <SubmitButton label = "submit" name="calculate"/>
         </form>
     }
 }
