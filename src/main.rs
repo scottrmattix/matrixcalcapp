@@ -108,6 +108,64 @@ fn App() -> Html {
     }
 }
 
+pub enum Msg {
+    Reduce(Matrix),
+}
+
+enum MatrixState{
+    Exists(Matrix),
+    Empty,
+}
+struct MatrixCalc{
+    state: MatrixState,
+}
+impl Component for MatrixCalc{
+    type Message = Msg;
+    type Properties  = ();
+    fn create(ctx: &Context<Self>) -> Self {
+        let state = MatrixState::Empty;
+        Self{
+            state: state,
+        }
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::Reduce(m) => {
+                let mut m_clone = m.clone();
+                m_clone.echelon_form();
+                self.state = MatrixState::Exists(m_clone);
+            },
+        }
+        true
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let form_onsubmit = ctx.link().callback(move |data: String| {
+            let mat = Matrix::create_from_string(&(&*data).to_string());
+            Msg::Reduce(mat)
+        });
+        match &self.state {
+            MatrixState::Exists(m) =>{
+                html! {
+                    <div>
+                        <FormMatrix onsubmit={ form_onsubmit }/>
+                        <MatrixComp matrix={m.clone()}/>
+                    </div>
+                }
+            },
+            MatrixState::Empty => {
+                html!{
+                    <div>
+                        <FormMatrix onsubmit={ form_onsubmit }/>
+                    </div>
+                }
+            },
+        }
+    }
+
+
+}
 fn main() {
     /*let mut m = Matrix::new(4, 4);
     let init = vec![1.0, 0.0, 0.0, 0.0,
@@ -121,6 +179,6 @@ fn main() {
     m.echelon_form();
     println!("{}", m.to_string());
     */
-    yew::Renderer::<App>::new().render();
+    yew::Renderer::<MatrixCalc>::new().render();
 }
 
