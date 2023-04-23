@@ -129,17 +129,6 @@ impl Matrix {
             }
         }
     }
-    // gets the transpose of a matrix
-    pub fn transpose(&mut self) {
-        for i in 0..self.rows {
-            for j in i+1..self.cols {
-                let index1 = i * self.cols + j;
-                let index2 = j * self.cols + i;
-                self.data.swap(index1, index2);
-            }
-        }
-        std::mem::swap(&mut self.rows, &mut self.cols);
-    }
     // Convert the matrix to echelon form using Gaussian elimination
     pub fn echelon_form(&mut self) {
         let mut lead = 0;
@@ -170,6 +159,19 @@ impl Matrix {
             lead += 1;
         }
     }
+    pub fn identity(size: usize) -> Self{
+        let mut data = vec![0.0; size * size]; 
+        let mut m = Matrix{
+            rows: size,
+            cols: size,
+            data,
+        };
+        for i in 0..size {
+            m.set(i, i, 1.0);
+        };
+        m
+
+    }
     // matrix inverse
     pub fn inverse(&self) -> Option<Matrix> {
         if self.rows != self.cols {
@@ -182,7 +184,7 @@ impl Matrix {
 
         for i in 0..n {
             let mut j = i;
-            while j < n && a[(j, i)] == 0.0 {
+            while j < n && a.get(j,i) == 0.0 {
                 j += 1;
             }
             if j == n {
@@ -192,14 +194,14 @@ impl Matrix {
                 a.swap_rows(i, j);
                 b.swap_rows(i, j);
             }
-            let pivot = a[(i, i)];
+            let pivot = a.get(i,i);
             a.scale_row(i, 1.0 / pivot);
             b.scale_row(i, 1.0 / pivot);
             for k in 0..n {
                 if k != i {
-                    let factor = a[(k, i)];
-                    a.add_scaled_row(k, i, -factor);
-                    b.add_scaled_row(k, i, -factor);
+                    let factor = a.get(k,i);
+                    a.add_multiple_of_row(k, i, -factor);
+                    b.add_multiple_of_row(k, i, -factor);
                 }
             }
         }
@@ -210,35 +212,43 @@ impl Matrix {
     // calculates the determinant
     pub fn determinant(&self) -> Option<f64> {
         if self.rows != self.cols {
-            return None; // Determinant is only defined for square matrices
+            return None;
         }
-
-        let n = self.rows;
-        let mut a = self.clone();
-        let mut det = 1.0;
-
-        for i in 0..n {
-            let mut j = i;
-            while j < n && a[(j, i)] == 0.0 {
-                j += 1;
-            }
-            if j == n {
-                return Some(0.0); // Matrix is singular
-            }
-            if j != i {
-                a.swap_rows(i, j);
-                det = -det;
-            }
-            let pivot = a[(i, i)];
-            det *= pivot;
-            a.scale_row(i, 1.0 / pivot);
-            for k in i+1..n {
-                let factor = a[(k, i)];
-                a.add_scaled_row(k, i, -factor);
-            }
+        if self.rows == 1 {
+            return Some(self.data[0]);
         }
-
+        if self.rows == 2 {
+            return Some(self.data[0] * self.data[3] - self.data[1] * self.data[2]);
+        }
+        let mut det = 0.0;
+        let mut sign = 1.0;
+        for i in 0..self.cols {
+            let submatrix = self.submatrix(0, i)?;
+            let subdet = submatrix.determinant()?;
+            det += sign * self.data[i] * subdet;
+            sign *= -1.0;
+        }
         Some(det)
+    }
+    fn submatrix(&self, row: usize, col: usize) -> Option<Matrix> {
+        if row >= self.rows || col >= self.cols {
+            return None;
+        }
+        let mut subdata = Vec::with_capacity((self.rows - 1) * (self.cols - 1));
+        for i in 0..self.rows {
+            if i == row {
+                continue;
+            }
+            for j in 0..self.cols {
+                if j == col {
+                    continue;
+                }
+                subdata.push(self.data[i * self.cols + j]);
+            }
+        }
+        let mut m =Matrix::new(self.rows - 1, self.cols - 1);
+        m.load_from_vector(subdata);
+        Some(m)
     }
     // returns a string
     pub fn to_string(&self) -> String {

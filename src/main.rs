@@ -89,12 +89,12 @@ fn matrix_form(props: &FormMatrixProps) -> Html {
     html! {
         <form onsubmit={onsubmit}>
             <TextInput name = "matrix"  handle_onchange={ matrix_changed}/>
-            <SubmitButton label = "submit" name="calculate"/>
+            <SubmitButton label = "Reduce" name="calculate"/>
         </form>
     }
 }
 
-
+/*
 #[function_component]
 fn App() -> Html {
     let matrix_state = use_state(|| "2 2 0 0 0 0".to_owned());
@@ -111,7 +111,7 @@ fn App() -> Html {
         </div>
     }
 }
-
+*/
 pub enum Msg {
     Reduce(Matrix),
 }
@@ -186,3 +186,70 @@ fn main() {
     yew::Renderer::<MatrixCalc>::new().render();
 }
 
+#[cfg(test)]
+mod tests{
+    use super::*;
+    #[test]
+    fn test_echelon_form() {
+        let mut m = Matrix::new(4, 4);
+        let init = vec![1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0, 1.0
+                ];
+        m.load_from_vector(init);
+        let s = "4 4 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1".to_owned();
+        let x = Matrix::create_from_string(&s);
+        m.echelon_form();
+        assert_eq!(m, x);
+    }
+
+    #[test]
+    fn test_identity(){
+        let mut m = Matrix::new(4, 4);
+        let init = vec![1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0, 1.0
+                ];
+        m.load_from_vector(init);
+        assert_eq!(m, Matrix::identity(4));
+    }
+
+    #[test]
+    fn test_deteminant(){
+        let mut m = Matrix::new(4, 4);
+        let init = vec![1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                0.0, 0.0, 0.0, 1.0
+                ];
+        m.load_from_vector(init);
+        assert_eq!(m.determinant(), Option::Some(1.0));
+    }
+    #[test]
+    fn test_deteminant_fail(){
+        let mut m = Matrix::new(2, 2);
+        let init = vec![1.0, 1.0, 1.0, 1.0,];
+        m.load_from_vector(init);
+        assert_eq!(m.determinant(), Option::Some(0.0));
+    }
+    #[test]
+    fn test_inverse(){
+        let mut m = Matrix::new(4, 4);
+        let init = vec![-1.0, 0.0, 0.0, 0.0,
+                0.0, -1.0, 0.0, 0.0,
+                0.0, 0.0, -1.0, 0.0,
+                0.0, 0.0, 0.0, -1.0
+                ];
+        m.load_from_vector(init);
+        let mut i  = Matrix::new(4, 4);
+        let init = vec![-1.0, 0.0, 0.0, 0.0,
+                0.0, -1.0, 0.0, 0.0,
+                0.0, 0.0, -1.0, 0.0,
+                0.0, 0.0, 0.0, -1.0
+                ];
+        i.load_from_vector(init);
+        assert_eq!(m.inverse(), Option::Some(i));
+    }
+}
