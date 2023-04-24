@@ -587,12 +587,12 @@ function getImports() {
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
     };
-    imports.wbg.__wbindgen_closure_wrapper4649 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 368, __wbg_adapter_16);
+    imports.wbg.__wbindgen_closure_wrapper4669 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 371, __wbg_adapter_16);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper4782 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 383, __wbg_adapter_19);
+    imports.wbg.__wbindgen_closure_wrapper4802 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 386, __wbg_adapter_19);
         return addHeapObject(ret);
     };
 
@@ -630,7 +630,7 @@ function initSync(module) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = new URL('matrixcalcapp-f030bf3015cca9b0_bg.wasm', import.meta.url);
+        input = new URL('matrixcalcapp-60c601abada74baf_bg.wasm', import.meta.url);
     }
     const imports = getImports();
 

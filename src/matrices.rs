@@ -129,6 +129,30 @@ impl Matrix {
             }
         }
     }
+
+    pub fn rank(&self) -> usize{
+        let mut clone_m = self.clone();
+        clone_m.echelon_form();
+        let reduced = clone_m.get_rows();
+        let mut rows = 0;
+        let mut zero_row = true;
+        for r in reduced {
+            for i in r{
+                if i != 0.0 {
+                    zero_row = false;
+                }
+            }
+            if zero_row {
+                rows += 1;
+            }
+            zero_row = true;
+        }
+        if rows != 0{
+            self.rows 
+        }else{
+            self.rows - rows
+        }
+    }
     // Convert the matrix to echelon form using Gaussian elimination
     pub fn echelon_form(&mut self) {
         let mut lead = 0;
@@ -159,6 +183,7 @@ impl Matrix {
             lead += 1;
         }
     }
+    // returns the indentity matrix
     pub fn identity(size: usize) -> Self{
         let mut data = vec![0.0; size * size]; 
         let mut m = Matrix{

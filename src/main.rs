@@ -100,11 +100,13 @@ pub enum Msg {
     Invert(Matrix),
     Determinant(Matrix),
     Transpose(Matrix),
+    Rank(Matrix),
 }
 
 enum AnswerState{
     Exists(Matrix),
     Scalar(f64),
+    USize(usize),
     DoesNotExist,
     Empty,
 }
@@ -147,12 +149,16 @@ impl Component for MatrixCalc{
                 let det = m.determinant(); 
                 match det {
                     Some(n) =>{
-                        self.state = AnswerState::Scalar(n)
+                        self.state = AnswerState::Scalar(n);
                     }
                     None => {
                         self.state = AnswerState::DoesNotExist;
                     }
                 }
+            }
+            Msg::Rank(m) =>{
+                let res = m.rank();
+                self.state = AnswerState::USize(res);
             }
         }
         true
@@ -175,12 +181,17 @@ impl Component for MatrixCalc{
             let mat = Matrix::create_from_string(&(&*data).to_string());
             Msg::Transpose(mat)
         });
+        let rank_form_onsubmit = ctx.link().callback(move |data: String| {
+            let mat = Matrix::create_from_string(&(&*data).to_string());
+            Msg::Rank(mat)
+        });
         html!{
             <div>
                 <FormMatrix button_name = {"reduce"} onsubmit={ ech_form_onsubmit }/>
                 <FormMatrix button_name = {"inverse"} onsubmit={ inv_form_onsubmit }/>
                 <FormMatrix button_name = {"determinant"} onsubmit={ det_form_onsubmit }/>
                 <FormMatrix button_name = {"transpose"} onsubmit={ trans_form_onsubmit }/>
+                <FormMatrix button_name = {"rank"} onsubmit={ rank_form_onsubmit }/>
                 <div class="answer-field">
                 { 
                     match &self.state {
@@ -197,6 +208,11 @@ impl Component for MatrixCalc{
                         AnswerState::DoesNotExist => {
                             html!{
                                 <p>{ "This Answer Does Not Exist" }</p>
+                            }
+                        },
+                        AnswerState::USize(n) =>{
+                            html!{
+                                <p>{ n }</p>
                             }
                         },
                         AnswerState::Empty => {
@@ -248,18 +264,6 @@ impl Component for MatrixCalc{
 
 }
 fn main() {
-    /*let mut m = Matrix::new(4, 4);
-    let init = vec![1.0, 0.0, 0.0, 0.0,
-                    0.0, 1.0, 0.0, 0.0,
-                    0.0, 0.0, 1.0, 0.0,
-                    0.0, 0.0, 0.0, 1.0
-                                    ];
-    m.load_from_vector(init);
-    let s = "2 2 1 0 0 1".to_owned();
-    let mut x = Matrix::create_from_string(&s);
-    m.echelon_form();
-    println!("{}", m.to_string());
-    */
     yew::Renderer::<MatrixCalc>::new().render();
 }
 
