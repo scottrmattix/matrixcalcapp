@@ -40,6 +40,7 @@ fn matrix_component(props: &MatrixProps) -> Html{
 struct FormMatrixProps{
     onsubmit: Callback<String>,
     button_name: String,
+    input_name: String,
 }
 
 #[derive(Properties, PartialEq)]
@@ -89,8 +90,8 @@ fn matrix_form(props: &FormMatrixProps) -> Html {
     });
     html! {
         <form onsubmit={onsubmit}>
-            <TextInput name = "matrix"  handle_onchange={ matrix_changed}/>
-            <SubmitButton label = {props.button_name.clone() } name="calculate"/>
+            <TextInput name = { props.input_name.clone() }  handle_onchange={ matrix_changed}/>
+            <SubmitButton label = {props.button_name.clone() } name={ props.button_name.clone()}/>
         </form>
     }
 }
@@ -187,11 +188,11 @@ impl Component for MatrixCalc{
         });
         html!{
             <div>
-                <FormMatrix button_name = {"reduce"} onsubmit={ ech_form_onsubmit }/>
-                <FormMatrix button_name = {"inverse"} onsubmit={ inv_form_onsubmit }/>
-                <FormMatrix button_name = {"determinant"} onsubmit={ det_form_onsubmit }/>
-                <FormMatrix button_name = {"transpose"} onsubmit={ trans_form_onsubmit }/>
-                <FormMatrix button_name = {"rank"} onsubmit={ rank_form_onsubmit }/>
+                <FormMatrix button_name = {"reduce"} input_name ={"matrix1"} onsubmit={ ech_form_onsubmit }/>
+                <FormMatrix button_name = {"inverse"} input_name ={"matrix2"} onsubmit={ inv_form_onsubmit }/>
+                <FormMatrix button_name = {"determinant"} input_name ={"matrix3"} onsubmit={ det_form_onsubmit }/>
+                <FormMatrix button_name = {"transpose"} input_name ={"matrix4"} onsubmit={ trans_form_onsubmit }/>
+                <FormMatrix button_name = {"rank"} input_name ={"matrix5"} onsubmit={ rank_form_onsubmit }/>
                 <div class="answer-field">
                 { 
                     match &self.state {

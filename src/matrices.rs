@@ -147,7 +147,7 @@ impl Matrix {
             }
             zero_row = true;
         }
-        if rows != 0{
+        if rows == 0{
             self.rows 
         }else{
             self.rows - rows
